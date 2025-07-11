@@ -124,13 +124,23 @@
         /* Responsive adjustments */
         @media (max-width: 600px) {
             .grid {
+  grid-template-columns: repeat(12, 8vw); /* 12 columns * 8vw = 96vw */
+  max-width: 100vw;
+}
+.cell {
+  width: 8vw;
+  height: 8vw;
+  font-size: 3vw;
+}
+
+            /* .grid {
                 grid-template-columns: repeat(12, 26px); /* Smaller cells on small screens */
             }
             .cell {
                 width: 26px;
                 height: 26px;
                 font-size: 0.7em;
-            }
+            } */
             .puzzle-card, .word-list, .form-section {
                 padding: 15px;
                 max-width: 95%;
