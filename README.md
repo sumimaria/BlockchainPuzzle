@@ -1,9 +1,9 @@
-🧩 #Blockchain Word Search Puzzle#
+🧩 **Blockchain Word Search Puzzle**
 A fun and interactive web-based word search puzzle game with a blockchain theme. Players find hidden words related to blockchain technology, and their completion details are securely stored in a MongoDB Atlas database via a Vercel serverless API.
 
 This project demonstrates a full-stack application setup, including a static frontend, a Node.js Express serverless backend, and a MongoDB Atlas database.
 
-✨ Features
+✨ **Features**
 Interactive Word Search Game: A 12x12 grid with words hidden horizontally and vertically.
 
 Blockchain-Themed Word List: Words like BLOCKCHAIN, NFT, CONTRACT, TOKEN, ETHEREUM, MINING, LEDGER, DEFI, HASH, NODE.
@@ -20,7 +20,7 @@ Serverless Backend: Utilizes Vercel for efficient and scalable API deployment.
 
 Responsive Design: Basic styling ensures playability on various screen sizes.
 
-🚀 Technologies Used
+🚀 **Technologies Used**
 Frontend:
 
 HTML5
@@ -51,7 +51,7 @@ Vercel (for deploying both the frontend and backend serverless function)
 
 Git / GitHub (for version control and continuous deployment)
 
-🛠️ Setup and Installation
+🛠️ **Setup and Installation**
 This project consists of two main parts: the frontend (your wordsearch_puzzle.html file) and the backend (a Node.js Express application deployed as a Vercel Serverless Function).
 
 1. MongoDB Atlas Setup
@@ -165,7 +165,7 @@ Example: const VERCEL_API_ENDPOINT_URL = 'https://blockchain-puzzle.vercel.app/a
 
 Save the HTML file.
 
-▶️ Usage
+▶️ **Usage**
 Open the Frontend: Open the wordsearch_puzzle.html file directly in your web browser.
 
 Play the Puzzle: Find the words listed below the grid. Click and drag your mouse over the letters to select a word. If it's correct, the cells will turn green.
@@ -174,7 +174,7 @@ Submit Details: Once you have found at least 5 words, the "Submit" button will b
 
 Verify Data: Log in to your MongoDB Atlas dashboard, navigate to your cluster, then to the winners collection within your database. You should see your submitted details there.
 
-📂 Project Structure
+📂 **Project Structure**
 .
 ├── wordsearch_puzzle.html  # Frontend HTML, CSS, and JavaScript for the game
 └── wordsearch-backend/     # Backend Node.js project
@@ -184,13 +184,11 @@ Verify Data: Log in to your MongoDB Atlas dashboard, navigate to your cluster, t
     ├── package.json         # Backend project dependencies and scripts
     └── .gitignore
 
-🤝 Contributing
-Contributions are welcome! If you have suggestions for improvements, new features, or bug fixes, please open an issue or submit a pull request.
 
-📄 License
+📄 **License**
 This project is open-source and available under the MIT License.
 
-🙏 Acknowledgements
+🙏 **Acknowledgements**
 MongoDB Atlas for cloud database hosting.
 
 Vercel for seamless serverless deployment.
