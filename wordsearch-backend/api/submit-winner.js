@@ -14,7 +14,7 @@ app.use(express.json());
 // CORS configuration
 // IMPORTANT: Replace '*' with your actual frontend domain(s) in production for security!
 app.use(cors({
-    origin: '*', // Allows all origins for development. Be specific in production.
+    origin:  ['*', 'null'], // Allows all origins for development. Be specific in production.
     methods: ['POST'],
     allowedHeaders: ['Content-Type'],
 }));
