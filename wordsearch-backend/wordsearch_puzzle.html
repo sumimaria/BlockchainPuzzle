@@ -398,6 +398,66 @@
                 clearSelection();
             }
         });
+        // for mobile selection
+        let lastTouchedCell = null;
+
+puzzleDiv.addEventListener("touchstart", e => {
+    const touch = e.touches[0];
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (target && target.classList.contains("cell")) {
+        clearSelection();
+        selecting = true;
+        selectCell(target);
+        lastTouchedCell = target;
+        e.preventDefault(); // Prevent scrolling
+    }
+}, { passive: false });
+
+puzzleDiv.addEventListener("touchmove", e => {
+    if (!selecting) return;
+
+    const touch = e.touches[0];
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+
+    if (target && target.classList.contains("cell") && target !== lastTouchedCell) {
+        if (!target.classList.contains("selected")) {
+            selectCell(target);
+            lastTouchedCell = target;
+        }
+        e.preventDefault();
+    }
+}, { passive: false });
+
+puzzleDiv.addEventListener("touchend", e => {
+    if (selecting) {
+        selecting = false;
+        const word = selectedCells.map(cell => cell.textContent).join("");
+        const reversed = selectedCells.map(cell => cell.textContent).reverse().join("");
+        const matchedWord = wordList.includes(word) ? word : wordList.includes(reversed) ? reversed : null;
+
+        if (matchedWord && !foundWords.has(matchedWord)) {
+            selectedCells.forEach(cell => {
+                cell.classList.remove("selected");
+                cell.classList.add("found");
+            });
+            foundWords.add(matchedWord);
+            updateWordsDisplay();
+        }
+
+        if (foundWords.size >= 5) {
+            document.getElementById("submitBtn").disabled = false;
+        }
+
+        if (foundWords.size === wordList.length) {
+            document.getElementById("congratsMessage").textContent = "🎉 Congratulations! You found all the words!";
+        }
+
+        clearSelection();
+        lastTouchedCell = null;
+    }
+});
+
+
 
         function selectCell(cell) {
             cell.classList.add("selected");

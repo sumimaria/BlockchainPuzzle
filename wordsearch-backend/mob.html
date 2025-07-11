@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Word Search Puzzle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f4f7f6; /* Light background */
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50; /* Dark blue heading */
+            margin-bottom: 30px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr); /* Use fractional units for responsive columns */
+            grid-template-rows: repeat(12, 1fr);    /* Use fractional units for responsive rows, making cells square */
+            justify-content: center;
+            gap: 2px; /* Small gap between cells */
+            user-select: none; /* Prevent text selection */
+            border: 2px solid #a0a0a0; /* Outer border for the grid */
+            border-radius: 8px; /* Rounded corners for the grid */
+            overflow: hidden; /* Ensures inner cells respect border-radius */
+            margin: 0 auto 25px auto; /* Center grid and add bottom margin */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow */
+            touch-action: none; /* Prevent browser default touch actions like scrolling/zooming */
+            width: 100%; /* Ensure grid takes full available width of its parent */
+            max-width: 500px; /* Set a max-width for larger screens */
+            aspect-ratio: 1 / 1; /* Keep the entire grid perfectly square */
+        }
+        .cell {
+            /* Remove fixed width/height, let grid's 1fr handle sizing */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e0e0e0; /* Lighter border for cells */
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #ecf0f1; /* Light background for cells */
+            color: #444;
+            /* Updated font-size for better mobile responsiveness */
+            font-size: min(4vw, 1.1em, 18px); /* Scales with viewport, capped by 1.1em and 18px */
+            line-height: 1; /* Ensure text doesn't overflow vertically */
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+        }
+        .selected {
+            background-color: #add8e6; /* Light blue for selected cells */
+        }
+        .found {
+            background-color: lightgreen; /* Light green for found words */
+            color: #fff; /* White text for found words for contrast */
+        }
+        .word-list {
+            margin-top: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .word-list h3 {
+            color: #34495e;
+            margin-bottom: 15px;
+        }
+        .word-list p {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .form-section {
+            margin-top: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .form-section h3 {
+            color: #34495e;
+            margin-bottom: 15px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: calc(100% - 22px); /* Account for padding and border */
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        button {
+            padding: 12px 25px;
+            margin-top: 10px;
+            background-color: #28a745; /* Green submit button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        button:disabled {
+            background-color: #cccccc; /* Grey when disabled */
+            cursor: not-allowed;
+        }
+        button:hover:not(:disabled) {
+            background-color: #218838; /* Darker green on hover */
+        }
+        #congratsMessage {
+            font-weight: bold;
+            color: #28a745; /* Green for success message */
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        #status {
+            color: #555;
+            margin-top: 10px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .grid {
+                /* Keep width: 100% and aspect-ratio: 1 / 1; from main .grid */
+                /* max-width: 380px; is fine, it just limits how wide it can get */
+            }
+            .cell {
+                /* Explicitly set a clear font size for mobile to ensure visibility */
+                font-size: 16px; /* Fixed pixel size for testing */
+            }
+            .puzzle-card, .word-list, .form-section {
+                padding: 15px;
+                max-width: 95%;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+            h3 {
+                font-size: 1.2em;
+            }
+            input[type="text"], button {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Blockchain Word Search Puzzle</h1>
+
+    <div id="puzzle" class="grid"></div>
+
+    <div class="word-list">
+        <h3>Find These Words:</h3>
+        <p id="words"></p>
+    </div>
+
+    <div class="form-section">
+        <h3>Submit Your Details</h3>
+        <form id="winnerForm">
+            <input type="text" id="name" placeholder="Your Name" required><br>
+            <input type="text" id="email" placeholder="Your Email" required><br>
+            <button type="submit" id="submitBtn" disabled>Submit</button>
+        </form>
+        <p id="congratsMessage" style="font-weight: bold; color: green;"></p>
+        <p id="status"></p>
+    </div>
+
+    <script>
+        const wordList = ["BLOCKCHAIN", "NFT", "CONTRACT", "TOKEN", "ETHEREUM", "MINING", "LEDGER", "DEFI", "HASH", "NODE"];
+
+        const ROWS = 12;
+        const COLS = 12;
+
+        /**
+         * Creates an empty grid filled with null values.
+         * @param {number} rows - Number of rows.
+         * @param {number} cols - Number of columns.
+         * @returns {Array<Array<string|null>>} An empty grid.
+         */
+        function createEmptyGrid(rows, cols) {
+            return Array.from({ length: rows }, () => Array(cols).fill(null));
+        }
+
+        /**
+         * Generates a random uppercase letter.
+         * @returns {string} A random uppercase letter.
+         */
+        function getRandomLetter() {
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            return alphabet[Math.floor(Math.random() * alphabet.length)];
+        }
+
+        /**
+         * Attempts to place a word in the grid at a given position and direction.
+         * @param {Array<Array<string|null>>} grid - The puzzle grid.
+         * @param {string} word - The word to place.
+         * @param {number} startRow - Starting row.
+         * @param {number} startCol - Starting column.
+         * @param {Array<number>} direction - [deltaRow, deltaCol] for movement.
+         * @returns {Array<{row: number, col: number}>|false} An array of coordinates if successful, false otherwise.
+         */
+        function placeWord(grid, word, startRow, startCol, direction) {
+            const [dr, dc] = direction;
+            const wordLength = word.length;
+            const path = []; // To store the coordinates of the placed word
+
+            // Check if the word fits within the grid boundaries and for conflicts
+            for (let i = 0; i < wordLength; i++) {
+                const r = startRow + i * dr;
+                const c = startCol + i * dc;
+
+                if (r < 0 || r >= ROWS || c < 0 || c >= COLS) {
+                    return false; // Out of bounds
+                }
+                // Check for conflicts with existing letters
+                if (grid[r][c] !== null && grid[r][c] !== word[i]) {
+                    return false; // Conflict with another letter
+                }
+                path.push({ row: r, col: c });
+            }
+
+            // Place the word if no conflicts
+            for (let i = 0; i < wordLength; i++) {
+                const r = path[i].row;
+                const c = path[i].col;
+                grid[r][c] = word[i];
+            }
+            return path; // Return the path of the placed word
+        }
+
+        /**
+         * Fills any null cells in the grid with random letters.
+         * @param {Array<Array<string|null>>} grid - The puzzle grid.
+         */
+        function fillEmptyCells(grid) {
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (grid[r][c] === null) {
+                        grid[r][c] = getRandomLetter();
+                    }
+                }
+            }
+        }
+
+        /**
+         * Shuffles an array in place (Fisher-Yates algorithm).
+         * @param {Array<any>} array - The array to shuffle.
+         * @returns {Array<any>} The shuffled array.
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+            }
+            return array;
+        }
+
+        /**
+         * Generates a single word search puzzle.
+         * @param {Array<string>} wordsToPlace - List of words to attempt to place.
+         * @returns {{grid: Array<Array<string>>, solutions: Array<{word: string, path: Array<{row: number, col: number}>}>}} The generated puzzle and its solutions.
+         */
+        function generatePuzzle(wordsToPlace) {
+            const grid = createEmptyGrid(ROWS, COLS);
+            const solutions = []; // To store word and its path
+            // Only horizontal and vertical directions
+            const directions = [
+                [0, 1],   // Right
+                [1, 0],   // Down
+                [0, -1],  // Left
+                [-1, 0]   // Up
+            ];
+
+            // Shuffle words to try different placement orders for variety
+            const shuffledWords = shuffleArray([...wordsToPlace]);
+
+            for (const word of shuffledWords) {
+                let wordPlaced = false;
+                let attempts = 0;
+                const maxAttempts = 1000; // Increased attempts for better placement success
+
+                while (!wordPlaced && attempts < maxAttempts) {
+                    const startRow = Math.floor(Math.random() * ROWS);
+                    const startCol = Math.floor(Math.random() * COLS);
+                    const direction = directions[Math.floor(Math.random() * directions.length)];
+
+                    const path = placeWord(grid, word, startRow, startCol, direction);
+                    if (path) { // If placement was successful
+                        solutions.push({ word: word, path: path });
+                        wordPlaced = true;
+                    }
+                    attempts++;
+                }
+            }
+
+            fillEmptyCells(grid);
+
+            // Convert the 2D grid array to an array of strings for the puzzleVersions format
+            const formattedGrid = grid.map(row => row.join(" "));
+
+            return {
+                grid: formattedGrid, // Now an array of strings
+                solutions: solutions
+            };
+        }
+
+        // Generate 5 versions of the puzzle, ensuring all words are placed in each
+        // Each puzzle object now includes the grid and its solutions
+        const puzzleVersionsWithSolutions = [];
+        for (let i = 0; i < 5; i++) {
+            let newPuzzle;
+            do {
+                newPuzzle = generatePuzzle(wordList);
+                // Regenerate if not all words were successfully placed
+            } while (newPuzzle.solutions.length !== wordList.length);
+            puzzleVersionsWithSolutions.push(newPuzzle);
+        }
+
+        // Select a random puzzle to display
+        const versionIndex = Math.floor(Math.random() * puzzleVersionsWithSolutions.length);
+        const selectedPuzzleData = puzzleVersionsWithSolutions[versionIndex];
+        const selectedPuzzleGrid = selectedPuzzleData.grid.map(row => row.split(" "));
+        const selectedPuzzleSolutions = selectedPuzzleData.solutions; // Solutions for the displayed puzzle
+
+        const foundWords = new Set();
+        let selecting = false;
+        let startCell = null; // Store the cell where selection started
+
+        // Declare cells array globally or outside DOMContentLoaded so it's accessible to getPathBetweenCells
+        const cells = [];
+
+        // --- DOMContentLoaded ensures elements are available before script tries to access them ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const puzzleDiv = document.getElementById("puzzle");
+            const wordsDiv = document.getElementById("words");
+            const submitBtn = document.getElementById("submitBtn");
+            const congratsMessage = document.getElementById("congratsMessage");
+            const statusMessage = document.getElementById("status");
+            const winnerForm = document.getElementById("winnerForm");
+
+            // Populate the puzzle grid with cells
+            selectedPuzzleGrid.forEach((row, i) => {
+                cells[i] = []; // Initialize inner array for each row
+                row.forEach((char, j) => {
+                    const cell = document.createElement("div");
+                    cell.className = "cell";
+                    cell.textContent = char;
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    puzzleDiv.appendChild(cell);
+                    cells[i][j] = cell; // Store cell reference in the global/outer 'cells' array
+                });
+            });
+
+            // Set grid columns based on the selected puzzle's first row length
+            // This needs to be called AFTER cells are appended, or at least after puzzleDiv is in DOM
+            // It's already inside DOMContentLoaded, so it's fine.
+            puzzleDiv.style.gridTemplateColumns = `repeat(${selectedPuzzleGrid[0].length}, 1fr)`;
+
+
+            // Display words to find
+            updateWordsDisplay();
+
+
+            // --- Event Listeners for Mouse and Touch ---
+            puzzleDiv.addEventListener("mousedown", handleStart);
+            puzzleDiv.addEventListener("mouseover", handleMove);
+            document.addEventListener("mouseup", handleEnd);
+
+            puzzleDiv.addEventListener("touchstart", handleStart);
+            puzzleDiv.addEventListener("touchmove", handleMove);
+            document.addEventListener("touchend", handleEnd);
+
+            function getCellFromEvent(event) {
+                let target = event.target;
+                // For touch events, event.target might be the grid itself or a child of cell.
+                // We need to find the actual cell element under the touch point.
+                if (event.touches && event.touches.length > 0) {
+                    const touch = event.touches[0];
+                    target = document.elementFromPoint(touch.clientX, touch.clientY);
+                }
+                // Traverse up the DOM tree until a 'cell' element is found
+                while (target && !target.classList.contains('cell')) {
+                    target = target.parentNode;
+                }
+                return target;
+            }
+
+            function handleStart(e) {
+                e.preventDefault(); // Prevent default touch actions like scrolling/zooming
+                const cell = getCellFromEvent(e);
+                if (cell && cell.classList.contains("cell")) {
+                    clearSelection();
+                    selecting = true;
+                    startCell = cell;
+                    selectCellVisual(cell); // Visually select the starting cell
+                    selectedCells.push(cell); // Add the starting cell to the list of selected cells
+                }
+            }
+
+            function handleMove(e) {
+                e.preventDefault(); // Prevent default touch actions like scrolling/zooming
+                if (selecting) {
+                    const currentCell = getCellFromEvent(e);
+                    if (currentCell && currentCell.classList.contains("cell")) {
+                        clearSelectionVisuals(); // Clear previous visual selection
+                        // Get the path of cells between startCell and currentCell
+                        const path = getPathBetweenCells(startCell, currentCell);
+                        path.forEach(cell => selectCellVisual(cell)); // Apply visual selection to all cells in path
+                        selectedCells.length = 0; // Clear previous selected cells
+                        selectedCells.push(...path); // Populate with new path
+                    }
+                }
+            }
+
+            function handleEnd(e) {
+                if (selecting) {
+                    selecting = false;
+                    startCell = null; // Reset start cell
+
+                    const word = selectedCells.map(cell => cell.textContent).join("");
+                    const reversed = selectedCells.map(cell => cell.textContent).reverse().join("");
+
+                    // Check if the formed word (or its reverse) is in the word list
+                    const matchedWord = wordList.find(w => w === word || w === reversed);
+
+                    if (matchedWord && !foundWords.has(matchedWord)) {
+                        // If a valid word is found and not already marked
+                        selectedCells.forEach(cell => {
+                            cell.classList.remove("selected"); // Remove temporary selection highlight
+                            cell.classList.add("found");      // Add permanent "found" highlight
+                        });
+                        foundWords.add(matchedWord); // Add to set of found words
+                        updateWordsDisplay(); // Update the word list display
+                    } else {
+                        clearSelectionVisuals(); // If not a valid word, clear the temporary selection visuals
+                    }
+
+                    // Enable submit button if at least 5 words are found
+                    if (foundWords.size >= 5) {
+                        submitBtn.disabled = false;
+                    }
+
+                    // Show congratulations message if all words are found
+                    if (foundWords.size === wordList.length) {
+                        congratsMessage.textContent = "🎉 Congratulations! You found all the words!";
+                    }
+
+                    selectedCells.length = 0; // Clear selected cells array for the next selection
+                }
+            }
+
+            function selectCellVisual(cell) {
+                // Adds the 'selected' class for visual highlighting
+                cell.classList.add("selected");
+            }
+
+            function clearSelection() {
+                // Clears both visual selection and the array of selected cells
+                clearSelectionVisuals();
+                selectedCells.length = 0;
+            }
+
+            function clearSelectionVisuals() {
+                // Removes the 'selected' class from all cells that have it
+                document.querySelectorAll('.cell.selected').forEach(cell => cell.classList.remove("selected"));
+            }
+
+            function getPathBetweenCells(cell1, cell2) {
+                const r1 = parseInt(cell1.dataset.row);
+                const c1 = parseInt(cell1.dataset.col);
+                const r2 = parseInt(cell2.dataset.row);
+                const c2 = parseInt(cell2.dataset.col);
+
+                const path = [];
+
+                // Check for horizontal path (same row, different columns)
+                if (r1 === r2) {
+                    const start = Math.min(c1, c2);
+                    const end = Math.max(c1, c2);
+                    for (let c = start; c <= end; c++) {
+                        path.push(cells[r1][c]);
+                    }
+                }
+                // Check for vertical path (same column, different rows)
+                else if (c1 === c2) {
+                    const start = Math.min(r1, r2);
+                    const end = Math.max(r1, r2);
+                    for (let r = start; r <= end; r++) {
+                        path.push(cells[r][c1]);
+                    }
+                }
+                // Diagonal selection is intentionally not supported based on puzzle generation
+                return path;
+            }
+
+            function updateWordsDisplay() {
+                const wordsHtml = wordList.map(word => {
+                    if (foundWords.has(word)) {
+                        return `<span style="text-decoration: line-through; color: #888;">${word}</span>`;
+                    }
+                    return word;
+                }).join(" ");
+                wordsDiv.innerHTML = wordsHtml;
+            }
+
+            // Event listener for form submission
+            winnerForm.addEventListener("submit", async function(e) {
+                e.preventDefault(); // Prevent default form submission
+                const name = document.getElementById("name").value;
+                const email = document.getElementById("email").value;
+                const wordsIdentified = foundWords.size; // Get the count of found words
+
+                if (!name || !email) {
+                    statusMessage.textContent = "Please fill in your name and email.";
+                    statusMessage.style.color = "orange";
+                    return;
+                }
+
+                submitBtn.disabled = true; // Disable button during submission
+                statusMessage.textContent = "Submitting details...";
+                statusMessage.style.color = "#555";
+
+                // IMPORTANT: Replace this URL with your deployed Vercel API endpoint URL
+                // Example: https://your-vercel-app-name.vercel.app/api/submit-winner
+                const VERCEL_API_ENDPOINT_URL = 'YOUR_VERCEL_API_ENDPOINT_URL_HERE'; // <-- UPDATE THIS
+
+                try {
+                    const response = await fetch(VERCEL_API_ENDPOINT_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: name,
+                            email: email,
+                            wordsFound: wordsIdentified,
+                            puzzleVersion: versionIndex,
+                            timestamp: new Date().toISOString()
+                        })
+                    });
+
+                    if (response.ok) {
+                        // If response is successful (2xx status)
+                        statusMessage.textContent = "Details submitted successfully!";
+                        statusMessage.style.color = "green";
+                        document.getElementById("name").value = ''; // Clear form fields
+                        document.getElementById("email").value = '';
+                    } else {
+                        // If response indicates an error (e.g., 4xx, 5xx)
+                        const errorData = await response.json(); // Attempt to parse error message from server
+                        statusMessage.textContent = `Error: ${errorData.message || 'Submission failed.'}`;
+                        statusMessage.style.color = "red";
+                    }
+
+                } catch (error) {
+                    // Catch network errors (e.g., no internet connection, CORS issues)
+                    console.error('Error submitting details:', error);
+                    statusMessage.textContent = "Network error. Please check your connection or try again later.";
+                    statusMessage.style.color = "red";
+                } finally {
+                    submitBtn.disabled = false; // Re-enable button regardless of success/failure
+                }
+            });
+        }); // End of DOMContentLoaded
+    </script>
+</body>
+</html>
