@@ -124,25 +124,25 @@
         /* Responsive adjustments */
         @media (max-width: 600px) {
             .grid {
-                grid-template-columns: repeat(12, 30px); /* Smaller cells on small screens */
+                grid-template-columns: repeat(12, 26px); /* Smaller cells on small screens */
             }
             .cell {
-                width: 30px;
-                height: 30px;
-                font-size: 0.9em;
+                width: 26px;
+                height: 26px;
+                font-size: 0.7em;
             }
             .puzzle-card, .word-list, .form-section {
                 padding: 15px;
                 max-width: 95%;
             }
             h1 {
-                font-size: 1.8em;
-            }
-            h2 {
                 font-size: 1.5em;
             }
-            h3 {
+            h2 {
                 font-size: 1.2em;
+            }
+            h3 {
+                font-size: 1.1em;
             }
             input[type="text"], button {
                 font-size: 0.9em;
@@ -153,9 +153,9 @@
 </head>
 <body>
     <h1>Blockchain Word Search Puzzle</h1>
-
+    <div style="overflow-x: auto; max-width: 100%;">
     <div id="puzzle" class="grid"></div>
-
+        </div>
     <div class="word-list">
         <h3>Find These Words:</h3>
         <p id="words"></p>
