@@ -163,17 +163,25 @@ Save the HTML file.
 
 ├── wordsearch_puzzle.html  # Frontend HTML, CSS, and JavaScript for the game  
 
+
 └── wordsearch-backend/     # Backend Node.js project  
+
 
     ├── api/  
     
-    │   └── submit-winner.js # Vercel Serverless Function (Express app)
+    
+    │   └── submit-winner.js # Vercel Serverless Function (Express app)  
+    
      
-    ├── node_modules/        # Node.js dependencies  
+    ├── node_modules/        # Node.js dependencies    
     
-    ├── package.json         # Backend project dependencies and scripts  
     
-    └── .gitignore
+    ├── package.json         # Backend project dependencies and scripts    
+    
+ 
+    
+    └── .gitignore  
+    
 
 
 📄 **License**
