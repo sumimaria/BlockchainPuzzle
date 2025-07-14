@@ -96,12 +96,19 @@ Install Dependencies:
 
 Your backend project structure should look like this:
 
-wordsearch-backend/
-├── api/
-│   └── submit-winner.js  # Your backend code
-├── node_modules/
-├── package.json
-├── .env                  # For local testing (optional, not deployed to Vercel)
+  
+  wordsearch-backend/  
+  
+├── api/  
+
+│   └── submit-winner.js  # Your backend code  
+
+├── node_modules/  
+
+├── package.json  
+
+├── .env  # For local testing (optional, not deployed to Vercel)  
+
 └── .gitignore
 
 Deploy to Vercel:
