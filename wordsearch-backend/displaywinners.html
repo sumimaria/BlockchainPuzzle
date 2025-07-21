@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Search Winners</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+        button {
+            background-color: #007bff; /* Blue */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin: 10px 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        button:hover:not(:disabled) {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        #statusMessage {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #555;
+            word-wrap: break-word;
+        }
+        .winners-table-container {
+            margin-top: 20px;
+            width: 100%;
+            overflow-x: auto; /* Allows horizontal scrolling on small screens */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden; /* Ensures rounded corners */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            white-space: nowrap; /* Prevent text wrapping in cells */
+        }
+        th {
+            background-color: #4CAF50; /* Green header */
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2; /* Zebra striping */
+        }
+        tr:hover {
+            background-color: #e0e0e0; /* Hover effect */
+        }
+        .no-results {
+            padding: 20px;
+            color: #888;
+            font-style: italic;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                border-radius: 8px;
+            }
+            h1 {
+                font-size: 1.6em;
+            }
+            button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+            th, td {
+                padding: 8px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Word Search Winners Leaderboard</h1>
+
+        <button id="loadWinnersBtn">Load Winners</button>
+        <p id="statusMessage"></p>
+
+        <div class="winners-table-container">
+            <table id="winnersTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Words Found</th>
+                        <th>Puzzle Version</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Winner data will be inserted here -->
+                </tbody>
+            </table>
+            <p id="noResultsMessage" class="no-results" style="display: none;">No winners recorded yet.</p>
+        </div>
+    </div>
+
+    <script>
+        const VERCEL_BACKEND_BASE_URL = 'https://blockchain-puzzle.vercel.app'; // !!! REPLACE WITH YOUR VERCEL BACKEND BASE URL !!!
+        const API_ENDPOINT = `${VERCEL_BACKEND_BASE_URL}/api/get-winners`;
+
+        const loadWinnersBtn = document.getElementById('loadWinnersBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const winnersTableBody = document.querySelector('#winnersTable tbody');
+        const noResultsMessage = document.getElementById('noResultsMessage');
+
+        /**
+         * Fetches winner data from the backend API and displays it in a table.
+         */
+        async function loadWinners() {
+            loadWinnersBtn.disabled = true;
+            statusMessage.textContent = "Loading winners...";
+            statusMessage.style.color = "#555";
+            winnersTableBody.innerHTML = ''; // Clear existing table rows
+            noResultsMessage.style.display = 'none'; // Hide no results message
+
+            try {
+                const response = await fetch(API_ENDPOINT);
+
+                if (response.ok) {
+                    const winners = await response.json();
+
+                    if (winners.length > 0) {
+                        winners.forEach(winner => {
+                            const row = winnersTableBody.insertRow();
+                            row.insertCell().textContent = winner.name;
+                            row.insertCell().textContent = winner.email;
+                            row.insertCell().textContent = winner.wordsFound;
+                            row.insertCell().textContent = winner.puzzleVersion !== undefined ? winner.puzzleVersion : 'N/A';
+                            row.insertCell().textContent = new Date(winner.timestamp).toLocaleString(); // Format timestamp
+                        });
+                        statusMessage.textContent = `Successfully loaded ${winners.length} winners.`;
+                        statusMessage.style.color = "green";
+                    } else {
+                        noResultsMessage.style.display = 'block'; // Show no results message
+                        statusMessage.textContent = "No winners recorded yet.";
+                        statusMessage.style.color = "#888";
+                    }
+                } else {
+                    const errorData = await response.json();
+                    statusMessage.textContent = `Error: ${errorData.message || 'Failed to load winners.'}`;
+                    statusMessage.style.color = "red";
+                    noResultsMessage.style.display = 'block'; // Show no results message on error
+                }
+            } catch (error) {
+                console.error('Error fetching winners:', error);
+                statusMessage.textContent = "Network error. Please check your connection or backend URL.";
+                statusMessage.style.color = "red";
+                noResultsMessage.style.display = 'block'; // Show no results message on network error
+            } finally {
+                loadWinnersBtn.disabled = false;
+            }
+        }
+
+        // Event Listener
+        loadWinnersBtn.addEventListener('click', loadWinners);
+
+        // Load winners automatically on page load
+        document.addEventListener('DOMContentLoaded', loadWinners);
+    </script>
+</body>
+</html>

@@ -70,7 +70,17 @@ app.post('/api/submit-winner', async (req, res) => {
         res.status(500).json({ message: 'Internal server error.', error: error.message });
     }
 });
-
+// NEW API Endpoint to get all winner details (GET route)
+app.get('/api/get-winners', async (req, res) => {
+    try {
+        // Fetch all winners, sort by timestamp descending (most recent first)
+        const winners = await Winner.find().sort({ timestamp: -1 });
+        res.status(200).json(winners);
+    } catch (error) {
+        console.error('Error fetching winner details:', error);
+        res.status(500).json({ message: 'Internal server error.', error: error.message });
+    }
+});
 // For Vercel, you export the app
 module.exports = app;
 
