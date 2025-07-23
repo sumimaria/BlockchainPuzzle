@@ -171,6 +171,7 @@
                 const response = await fetch(API_ENDPOINT);
 
                 if (response.ok) {
+                    console.log(response);
                     const winners = await response.json();
 
                     if (winners.length > 0) {
