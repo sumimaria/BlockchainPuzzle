@@ -150,7 +150,7 @@
 
     <script>
         const VERCEL_BACKEND_BASE_URL = 'https://blockchain-puzzle.vercel.app'; // !!! REPLACE WITH YOUR VERCEL BACKEND BASE URL !!!
-        const API_ENDPOINT = `${VERCEL_BACKEND_BASE_URL}/api/get-winners`;
+        const API_ENDPOINT = `${VERCEL_BACKEND_BASE_URL}/api/submit-winner`;
 
         const loadWinnersBtn = document.getElementById('loadWinnersBtn');
         const statusMessage = document.getElementById('statusMessage');
@@ -185,6 +185,7 @@
                         statusMessage.textContent = `Successfully loaded ${winners.length} winners.`;
                         statusMessage.style.color = "green";
                     } else {
+
                         noResultsMessage.style.display = 'block'; // Show no results message
                         statusMessage.textContent = "No winners recorded yet.";
                         statusMessage.style.color = "#888";
